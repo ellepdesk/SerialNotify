@@ -78,7 +78,6 @@ void MainWindow::updatePorts()
     }
     if(newPorts)
     {
-        qDebug() << "newPorts: " << message;
         trayIcon->showMessage("Serial Port(s) Found", message);
     }
 
@@ -137,6 +136,5 @@ void MainWindow::toggleUi()
         hide();
     else
         show();
-
 }
 
