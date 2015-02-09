@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>serial.png</file>
+    </qresource>
+</RCC>
