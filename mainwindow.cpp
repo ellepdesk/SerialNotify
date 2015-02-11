@@ -91,6 +91,19 @@ void MainWindow::updatePorts()
     portNameList->setStringList(list);
 }
 
+void MainWindow::updateMenu()
+{
+    trayIconMenu->clear();
+    for (int i = 0; i < portInfo.length(); i++)
+    {
+        trayIconMenu->addAction(portInfo.at(i).portName());
+    }
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addAction(quitAction);
+
+}
+
 void MainWindow::createActions()
 {
     restoreAction = new QAction(tr("&Restore"), this);
@@ -118,14 +131,15 @@ void MainWindow::CreateTrayIcon()
 
 void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
-    updatePorts();
     switch (reason) {
     case QSystemTrayIcon::Trigger:
         toggleUi();
         break;
     case QSystemTrayIcon::Context:
+        updateMenu();
         break;
     default:
+        updatePorts();
         ;
     }
 }

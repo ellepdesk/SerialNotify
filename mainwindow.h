@@ -29,6 +29,7 @@ private:
     void CreateTrayIcon();
     void createActions();
     void toggleUi();
+    void updateMenu();
 
 
     Ui::MainWindow *ui;
