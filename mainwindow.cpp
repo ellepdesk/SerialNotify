@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
                  this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     portNameList = new QStringListModel();
     ui->portList->setModel(portNameList);
+    ui->menuSerialNotifier->addAction(quitAction);
     updatePorts();
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updatePorts()));
@@ -81,11 +82,11 @@ void MainWindow::updatePorts()
         trayIcon->showMessage("Serial Port(s) Found", message);
     }
 
-
     QStringList list;
     for (int i = 0; i < freshPortInfo.length(); i++)
     {
-        list << freshPortInfo.at(i).portName();
+        QSerialPortInfo p = freshPortInfo.at(i);
+        list << p.portName() + "\t" +  p.manufacturer() + " " + p.description() ;
     }
     portInfo = freshPortInfo;
     portNameList->setStringList(list);
@@ -131,7 +132,8 @@ void MainWindow::CreateTrayIcon()
 
 void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
-    switch (reason) {
+    switch (reason)
+    {
     case QSystemTrayIcon::Trigger:
         toggleUi();
         break;
@@ -140,7 +142,6 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
         break;
     default:
         updatePorts();
-        ;
     }
 }
 
