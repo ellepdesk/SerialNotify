@@ -32,6 +32,8 @@ void MainWindow::updatePorts()
     QList<QSerialPortInfo> newPortInfo;
     QList<QSerialPortInfo> removedPortInfo;
 
+    bool portListChanged = false;
+
     //find new ports
     for (int i = 0; i < freshPortInfo.length(); i++)
     {
@@ -48,6 +50,7 @@ void MainWindow::updatePorts()
         if (!match)
         {
             newPortInfo.push_back(QSerialPortInfo(freshPortInfo.at(i)));
+            portListChanged = true;
         }
     }
 
@@ -67,6 +70,7 @@ void MainWindow::updatePorts()
         if (!match)
         {
             removedPortInfo.push_back(QSerialPortInfo(portInfo.at(i)));
+            portListChanged = true;
         }
     }
 
@@ -90,6 +94,11 @@ void MainWindow::updatePorts()
     }
     portInfo = freshPortInfo;
     portNameList->setStringList(list);
+
+    if (portListChanged)
+    {
+        updateMenu();
+    }
 }
 
 void MainWindow::updateMenu()
@@ -138,7 +147,6 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
         toggleUi();
         break;
     case QSystemTrayIcon::Context:
-        updateMenu();
         break;
     default:
         updatePorts();
@@ -152,4 +160,3 @@ void MainWindow::toggleUi()
     else
         show();
 }
-
