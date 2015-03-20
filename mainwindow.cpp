@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "serialupdater.h"
 #include <QDebug>
 
 
@@ -15,10 +16,14 @@ MainWindow::MainWindow(QWidget *parent) :
     portNameList = new QStringListModel();
     ui->portList->setModel(portNameList);
     ui->menuSerialNotifier->addAction(quitAction);
-    updatePorts();
+
+    updaters << new SerialUpdater();
+
+    updateAll();
     QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updatePorts()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateAll()));
     timer->start(1000);
+    portNameList->setStringList(list);
 }
 
 MainWindow::~MainWindow()
@@ -26,92 +31,37 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updatePorts()
+void MainWindow::updateAll()
 {
-    QList<QSerialPortInfo> freshPortInfo = QSerialPortInfo::availablePorts();
-    QList<QSerialPortInfo> newPortInfo;
-    QList<QSerialPortInfo> removedPortInfo;
-
-    bool portListChanged = false;
-
-    //find new ports
-    for (int i = 0; i < freshPortInfo.length(); i++)
-    {
-        bool match = false;
-        for (int j = 0; j < portInfo.length(); j++)
-        {
-            //match name against all previous ports
-            if (freshPortInfo.at(i).portName() == portInfo.at(j).portName())
-            {
-                match = true;
-                break;
-            }
-        }
-        if (!match)
-        {
-            newPortInfo.push_back(QSerialPortInfo(freshPortInfo.at(i)));
-            portListChanged = true;
-        }
-    }
-
-    //find removed ports
-    for (int i = 0; i < portInfo.length(); i++)
-    {
-        bool match = false;
-        for (int j = 0; j < freshPortInfo.length(); j++)
-        {
-            //match name against all new ports
-            if (portInfo.at(i).portName() == freshPortInfo.at(j).portName())
-            {
-                match = true;
-                break;
-            }
-        }
-        if (!match)
-        {
-            removedPortInfo.push_back(QSerialPortInfo(portInfo.at(i)));
-            portListChanged = true;
-        }
-    }
-
     QString message = "";
-    bool newPorts = false;
-    for (int i = 0; i < newPortInfo.length(); i++)
+    list.clear();
+    foreach(Updater* u, updaters)
     {
-        message += newPortInfo.at(i).portName() + "\n";
-        newPorts = true;
+        u->update();
+        message += u->popNotificationMessage();
+        list += u->getItemList();
     }
-    if(newPorts)
+    if (message != "")
     {
-        trayIcon->showMessage("Serial Port(s) Found", message);
+        trayIcon->showMessage("HW Changed", message);
     }
-
-    QStringList list;
-    for (int i = 0; i < freshPortInfo.length(); i++)
-    {
-        QSerialPortInfo p = freshPortInfo.at(i);
-        list << p.portName() + "\t" +  p.manufacturer() + " " + p.description() ;
-    }
-    portInfo = freshPortInfo;
+    updateMenu();
+    portNameList->stringList().clear();
     portNameList->setStringList(list);
-
-    if (portListChanged)
-    {
-        updateMenu();
-    }
 }
 
 void MainWindow::updateMenu()
 {
     trayIconMenu->clear();
-    for (int i = 0; i < portInfo.length(); i++)
+
+    foreach(Updater* u, updaters)
     {
-        trayIconMenu->addAction(portInfo.at(i).portName());
+       u->updateMenu(trayIconMenu);
+       trayIconMenu->addSeparator();
     }
-    trayIconMenu->addSeparator();
+
     trayIconMenu->addAction(restoreAction);
     trayIconMenu->addAction(quitAction);
-
 }
 
 void MainWindow::createActions()
@@ -149,14 +99,19 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
     case QSystemTrayIcon::Context:
         break;
     default:
-        updatePorts();
+        updateAll();
     }
 }
 
 void MainWindow::toggleUi()
 {
     if (isVisible())
+    {
         hide();
+    }
     else
-        show();
+    {
+        show();\
+        raise();
+    }
 }

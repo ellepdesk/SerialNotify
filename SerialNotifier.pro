@@ -13,9 +13,13 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    serialupdater.cpp \
+    updater.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    updater.h \
+    serialupdater.h
 
 FORMS    += mainwindow.ui
 

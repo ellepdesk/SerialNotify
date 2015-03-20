@@ -5,9 +5,9 @@
 #include <QMessageBox>
 #include <QSystemTrayIcon>
 #include <QStringListModel>
-#include <QtSerialPort/QSerialPortInfo>
 #include <QSet>
 #include <QTimer>
+#include <Updater.h>
 
 namespace Ui {
 class MainWindow;
@@ -23,14 +23,13 @@ public:
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void updatePorts();
+    void updateAll();
 
 private:
     void CreateTrayIcon();
     void createActions();
     void toggleUi();
     void updateMenu();
-
 
     Ui::MainWindow *ui;
     QAction *minimizeAction;
@@ -41,7 +40,8 @@ private:
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
     QStringListModel *portNameList;
-    QList<QSerialPortInfo> portInfo;
+    QStringList list;
+    QSet<Updater*> updaters;
 };
 
 #endif // MAINWINDOW_H
