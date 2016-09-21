@@ -7,7 +7,7 @@
 #include <QStringListModel>
 #include <QSet>
 #include <QTimer>
-#include <Updater.h>
+#include "updater.h"
 
 namespace Ui {
 class MainWindow;
