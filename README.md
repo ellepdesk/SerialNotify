@@ -6,6 +6,8 @@ serial ports, however it also works perfectly on linux.
 
 # Build
 Import into QTCreator and build
+OR
+run "qmake && make"
 
 # Libs
 uses QSerialPort
